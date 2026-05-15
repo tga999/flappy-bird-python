@@ -115,7 +115,20 @@ def colision(tubos):
 
 #Score
 
+#High-score
+def cargar_high_score():
+    try:
+        with open ("highscore.txt", "r") as f:
+            return int(f.read())
+    except:
+        return 0
+    
+def guardar_high_score(score):
+    with open ("highscore.txt", "w") as f:
+        f.write(str(score))
+
 score = 0
+highscore= cargar_high_score()
 
 font = pygame.font.Font(None, 40)
 
@@ -130,6 +143,10 @@ def mostrar_score(score):
     score_rect = score_surface.get_rect(center=(200, 50))
 
     SCREEN.blit(score_surface, score_rect)
+    
+    hs_surface = font.render(f"Highscore: {highscore}", True, (0, 0, 0))
+    hs_rect = hs_surface.get_rect(center=(200, 90))
+    SCREEN.blit(hs_surface, hs_rect)
 
 
 def actualizar_score():
@@ -149,6 +166,7 @@ def actualizar_score():
                 score += 1
 
                 tubo["scored"] = True
+
 
 #Pantalla game-over
 
@@ -244,7 +262,13 @@ while True:
         mostrar_score(score)
 
         # Colisiones
-        game_active = colision(tubos_list)
+        if not colision(tubos_list):
+
+            game_active = False
+
+            if score > highscore:
+                highscore = score
+                guardar_high_score(highscore)
 
     # Game-over
 
