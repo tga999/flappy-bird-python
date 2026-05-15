@@ -4,6 +4,22 @@ import random
 
 pygame.init()
 
+#ASSETS
+
+bg=pygame.image.load("assets/bg.png")
+bg=pygame.transform.scale(bg,(400,600))
+
+bird_frames=[
+    pygame.image.load("assets/bird/frame-1.png"),
+    pygame.image.load("assets/bird/frame-2.png"),
+]
+
+tuboArriba = pygame.image.load("assets/tubos/tubo_arriba.png")
+tuboArriba = pygame.transform.scale(tuboArriba, (70, 400))
+tuboAbajo = pygame.image.load("assets/tubos/tubo_abajo.png")
+tuboAbajo = pygame.transform.scale(tuboAbajo, (70, 400))
+
+
 #Config de pantalla
 
 WIDTH = 400
@@ -23,6 +39,17 @@ bird_y = 300
 gravity = 0.5
 bird_movement = 0
 
+bird_index = 0
+animation_speed= 0.1
+bird_img = bird_frames[bird_index]
+
+def animar_pajaro():
+    global bird_index, bird_img
+    bird_index += animation_speed
+    if bird_index >= len(bird_frames):
+        bird_index = 0
+    bird_img = bird_frames[int(bird_index)]
+    
 #Tubos
 
 tubos_list = []
@@ -55,11 +82,10 @@ def mover_tubos(tubos):
 def dibujar_tubos(tubos):
 
     for tubo in tubos:
-        pygame.draw.rect(
-            SCREEN,
-            (0, 200, 0),
-            tubo["rect"]
-        )
+        if tubo["rect"].bottom >= HEIGHT:
+            SCREEN.blit(tuboAbajo, tubo["rect"])
+        else:
+            SCREEN.blit(tuboArriba, tubo["rect"])
 
 #Timer para generar tubos
 
@@ -98,7 +124,7 @@ def mostrar_score(score):
     score_surface = font.render(
         f"Score: {int(score)}",
         True,
-        (255, 255, 255)
+        (0, 0, 0)
     )
 
     score_rect = score_surface.get_rect(center=(200, 50))
@@ -131,7 +157,7 @@ def game_over_screen():
     game_over_surface = font.render(
         "PERDISTE!",
         True,
-        (255, 255, 255)
+        (0, 0, 0)
     )
 
     game_over_rect = game_over_surface.get_rect(center=(200, 250))
@@ -141,7 +167,7 @@ def game_over_screen():
     restart_surface = font.render(
         "ESPACIO | W para reiniciar",
         True,
-        (255, 255, 255)
+        (0, 0, 0)
     )
 
     restart_rect = restart_surface.get_rect(center=(200, 320))
@@ -196,19 +222,16 @@ while True:
     if game_active:
 
         # Fondo
-        SCREEN.fill((135, 206, 235))
+        SCREEN.blit(bg, (0, 0))
 
         # Física pájaro
+        animar_pajaro()
         bird_movement += gravity
         bird_y += bird_movement
-
+        bird = pygame.transform.scale(bird_img, (40, 40))
+        
         # Dibujar pájaro
-        pygame.draw.circle(
-            SCREEN,
-            (255, 255, 0),
-            (bird_x, int(bird_y)),
-            20
-        )
+        SCREEN.blit(bird, (bird_x - 20, int(bird_y) - 20))
 
         # Tubos
         tubos_list = mover_tubos(tubos_list)
@@ -227,7 +250,7 @@ while True:
 
     else:
 
-        SCREEN.fill((0, 0, 0))
+        SCREEN.blit(bg, (0, 0))
 
         game_over_screen()
 
